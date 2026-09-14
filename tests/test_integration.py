@@ -16,10 +16,14 @@ def test_end_to_end_flow(client):
     assert created.status_code == 201
     slot_id = created.json()["id"]
 
-    listed = client.get("/slots", params={"clinician_id": "dr-house", "available": "true"}).json()
+    listed = client.get(
+        "/slots", params={"clinician_id": "dr-house", "available": "true"}
+    ).json()
     assert [s["id"] for s in listed] == [slot_id]
 
-    booking = client.post("/bookings", json={"slot_id": slot_id, "patient_name": "Jane Doe"})
+    booking = client.post(
+        "/bookings", json={"slot_id": slot_id, "patient_name": "Jane Doe"}
+    )
     assert booking.status_code == 201
     booking_id = booking.json()["id"]
     assert client.get("/slots", params={"available": "true"}).json() == []
@@ -31,9 +35,13 @@ def test_end_to_end_flow(client):
     available = client.get("/slots", params={"available": "true"}).json()
     assert [s["id"] for s in available] == [slot_id]
 
-    rebooked = client.post("/bookings", json={"slot_id": slot_id, "patient_name": "John Roe"})
+    rebooked = client.post(
+        "/bookings", json={"slot_id": slot_id, "patient_name": "John Roe"}
+    )
     assert rebooked.status_code == 201
-    assert client.get("/slots", params={"available": "false"}).json()[0]["id"] == slot_id
+    assert (
+        client.get("/slots", params={"available": "false"}).json()[0]["id"] == slot_id
+    )
 
 
 def test_concurrent_bookings_only_one_succeeds(client):

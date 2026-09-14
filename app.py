@@ -7,8 +7,8 @@ returned in UTC.
 
 import threading
 import uuid
+from datetime import UTC, datetime, timedelta
 from datetime import date as Date
-from datetime import datetime, timedelta, timezone
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
@@ -24,7 +24,7 @@ CANCELLATION_NOTICE = timedelta(hours=24)
 
 
 def _to_utc(value: datetime) -> datetime:
-    return value.astimezone(timezone.utc)
+    return value.astimezone(UTC)
 
 
 UTCDatetime = Annotated[AwareDatetime, AfterValidator(_to_utc)]
@@ -86,7 +86,7 @@ def get_store() -> Store:
 
 
 def get_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 StoreDep = Annotated[Store, Depends(get_store)]
@@ -116,7 +116,9 @@ def handle_slot_conflict(request: Request, exc: SlotConflictError) -> JSONRespon
 
 
 def unprocessable(detail: str) -> HTTPException:
-    return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=detail)
+    return HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=detail
+    )
 
 
 # --- Slots ------------------------------------------------------------------
@@ -207,7 +209,9 @@ def cancel_booking(booking_id: str, store: StoreDep, now: NowDep) -> Booking:
         if booking is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "booking not found")
         if booking.status == "cancelled":
-            raise HTTPException(status.HTTP_409_CONFLICT, "booking is already cancelled")
+            raise HTTPException(
+                status.HTTP_409_CONFLICT, "booking is already cancelled"
+            )
         slot = store.slots[booking.slot_id]
         if slot.start - now < CANCELLATION_NOTICE:
             raise HTTPException(
