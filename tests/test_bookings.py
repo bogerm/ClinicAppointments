@@ -18,7 +18,9 @@ def cancel(client, booking_id):
 
 def test_create_booking(client, clock):
     slot = make_slot(client, FIXED_NOW + timedelta(days=2))
-    response = client.post("/bookings", json={"slot_id": slot["id"], "patient_name": "Jane Doe"})
+    response = client.post(
+        "/bookings", json={"slot_id": slot["id"], "patient_name": "Jane Doe"}
+    )
     assert response.status_code == 201
     body = response.json()
     assert set(body) == {"id", "slot_id", "patient_name", "status", "created_at"}
@@ -33,14 +35,18 @@ def test_create_booking(client, clock):
 @pytest.mark.parametrize("name", ["J", "x" * 100])
 def test_patient_name_boundaries(client, name):
     slot = make_slot(client, FIXED_NOW + timedelta(days=2))
-    response = client.post("/bookings", json={"slot_id": slot["id"], "patient_name": name})
+    response = client.post(
+        "/bookings", json={"slot_id": slot["id"], "patient_name": name}
+    )
     assert response.status_code == 201
 
 
 @pytest.mark.parametrize("name", ["", "x" * 101])
 def test_invalid_patient_name(client, name):
     slot = make_slot(client, FIXED_NOW + timedelta(days=2))
-    response = client.post("/bookings", json={"slot_id": slot["id"], "patient_name": name})
+    response = client.post(
+        "/bookings", json={"slot_id": slot["id"], "patient_name": name}
+    )
     assert response.status_code == 422
     assert slot_by_id(client, slot["id"])["booked"] is False
 
@@ -51,14 +57,18 @@ def test_invalid_body_precedes_not_found(client):
 
 
 def test_unknown_slot(client):
-    response = client.post("/bookings", json={"slot_id": "does-not-exist", "patient_name": "Jane"})
+    response = client.post(
+        "/bookings", json={"slot_id": "does-not-exist", "patient_name": "Jane"}
+    )
     assert response.status_code == 404
 
 
 def test_slot_already_booked(client):
     slot = make_slot(client, FIXED_NOW + timedelta(days=2))
     original = make_booking(client, slot["id"])
-    response = client.post("/bookings", json={"slot_id": slot["id"], "patient_name": "Other"})
+    response = client.post(
+        "/bookings", json={"slot_id": slot["id"], "patient_name": "Other"}
+    )
     assert response.status_code == 409
     assert client.get(f"/bookings/{original['id']}").json() == original
 
@@ -67,7 +77,9 @@ def test_slot_already_booked(client):
 def test_slot_already_started(client, clock, elapsed):
     slot = make_slot(client, FIXED_NOW + timedelta(hours=1))
     clock.now = FIXED_NOW + timedelta(hours=1) + elapsed
-    response = client.post("/bookings", json={"slot_id": slot["id"], "patient_name": "Jane"})
+    response = client.post(
+        "/bookings", json={"slot_id": slot["id"], "patient_name": "Jane"}
+    )
     assert response.status_code == 409
 
 

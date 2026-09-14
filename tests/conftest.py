@@ -1,12 +1,12 @@
 from collections.abc import Iterator
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 
 from app import app, get_now, store
 
-FIXED_NOW = datetime(2030, 1, 1, 8, 0, tzinfo=timezone.utc)
+FIXED_NOW = datetime(2030, 1, 1, 8, 0, tzinfo=UTC)
 
 
 class Clock:
@@ -59,7 +59,11 @@ def make_slot(
     return response.json()
 
 
-def make_booking(client: TestClient, slot_id: str, patient_name: str = "Jane Doe") -> dict:
-    response = client.post("/bookings", json={"slot_id": slot_id, "patient_name": patient_name})
+def make_booking(
+    client: TestClient, slot_id: str, patient_name: str = "Jane Doe"
+) -> dict:
+    response = client.post(
+        "/bookings", json={"slot_id": slot_id, "patient_name": patient_name}
+    )
     assert response.status_code == 201, response.text
     return response.json()
