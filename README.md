@@ -24,6 +24,19 @@ Interactive docs: http://127.0.0.1:8000/docs
 uv run pytest
 ```
 
+## Continuous Integration
+
+Every push to `master` and every pull request targeting `master` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which checks lint, formatting, static types, and tests as four independent jobs. Reproduce each locally with:
+
+```bash
+uv run ruff check .          # lint
+uv run ruff format --check . # formatting
+uv run ty check              # static types
+uv run pytest                # tests
+```
+
+> **Repo admin follow-up:** GitHub Actions can only report these checks — it cannot make them required. To actually block merges on a red check, a repo admin must enable **Settings → Branches → Branch protection rules → require a rule for `master` → "Require status checks to pass before merging"** and select `Lint`, `Format`, `Type check`, and `Test`.
+
 ## Endpoints
 
 All datetimes must be ISO 8601 **with an offset** (`Z` or `±HH:MM`); they are stored and returned in UTC.
