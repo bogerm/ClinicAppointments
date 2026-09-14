@@ -3,7 +3,9 @@ name = "clinic-appointments"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "bcrypt>=5.0.0",
     "fastapi[standard]>=0.141.1",
+    "pyjwt>=2.14.0",
 ]
 
 [dependency-groups]
